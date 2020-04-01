@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function($rootScope, $scope) {
+	/* widget controller */
+	var c = this;
+
+	$rootScope.$on('selectNote', function(event, data) {
+		c.server.get({
+			action: 'getNote',
+			noteID: $rootScope.noteID
+		}).then(function(r) {
+			c.data.noteID = r.data.notes.sys_id;
+			c.data.title = r.data.notes.title;
+			c.data.note = r.data.notes.note;
+		});
+	});
+
+	c.updateNote = function(el) {
+		c.server.get({
+			action: 'updateNote',
+			noteID: c.data.noteID,
+			title: c.data.title,
+			note: c.data.note
+		}).then(function(r) {
+			$rootScope.title = c.data.title;
+			$rootScope.note = c.data.note;
+			$rootScope.$emit('updatedNote');
+		});
+	}
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css/>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>true</has_preview>
+        <id>notes_body</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {  }]]></link>
+        <name>Notes Body</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+  /* populate the 'data' object */
+  /* e.g., data.table = $sp.getValue('table'); */
+data.title = 'test';
+	
+	if(input && input.noteID) {
+		var gs = new GlideRecord('x_snc_createnotes_note');
+		if(gs.get(input.noteID)) {
+			if(input.action == 'getNote') {
+				data.notes = {};
+				$sp.getRecordDisplayValues(data.notes, gs, 'sys_id, title, note');
+			}
+			
+			if(input.action == 'updateNote') {
+				gs.title = input.title;
+				gs.note = input.note;
+				gs.update();
+				$sp.getRecordDisplayValues(data.notes, gs, 'sys_id, title, note');
+			}
+		}
+	}
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2020-03-31 17:45:08</sys_created_on>
+        <sys_id>04b4bacb2f3f00105afa5fd92799b6d7</sys_id>
+        <sys_mod_count>18</sys_mod_count>
+        <sys_name>Notes Body</sys_name>
+        <sys_package display_value="CreateNotes" source="x_snc_createnotes">df5fd9a5090232007f44e1046c8ff69f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="CreateNotes">df5fd9a5090232007f44e1046c8ff69f</sys_scope>
+        <sys_update_name>sp_widget_04b4bacb2f3f00105afa5fd92799b6d7</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2020-04-01 14:50:59</sys_updated_on>
+        <template><![CDATA[<div class="panel panel-default" ng-show="c.data.noteID">
+  <div class="panel-heading clearfix">
+    <div class="row">
+      <div class="col-md-12">
+        <input class="form-control" id="note-title" ng-model="c.data.title" ng-change="c.updateNote('title')" />
+      </div>
+    </div>
+  </div>
+  <div class="panel-body">
+    <textarea class="form-control" id="note-body" ng-model="c.data.note" ng-change="c.updateNote('body')"></textarea>
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>
